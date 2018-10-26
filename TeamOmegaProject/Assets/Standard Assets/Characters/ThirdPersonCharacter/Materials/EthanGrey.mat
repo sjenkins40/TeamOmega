@@ -73,7 +73,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaTestRef: 0.5
-    - _BlurWidth: 0.15
+    - _BlurWidth: 0.12
     - _BumpScale: 1
     - _CelShadingLevels: 3
     - _Cutoff: 0.5
