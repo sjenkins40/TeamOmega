@@ -29,9 +29,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
 
-		float health = 12;
-		bool invincible;
-
 
 		void Start()
 		{
@@ -43,7 +40,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
-			invincible = false;
 		}
 
 
@@ -201,12 +197,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Rigidbody.velocity = v;
 			}
 		} 
-
-		public void takeDamage(int dmg) {
-			if (!invincible) {
-				health -= dmg;
-			}
-		}
 
 
 		void CheckGroundStatus()
