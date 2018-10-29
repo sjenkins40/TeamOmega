@@ -5,15 +5,17 @@ using UnityEngine;
 public class ChasePlayer : BehaviorTreeNode {
 	private float counter = 0;
 	private float distance;
-	public ChasePlayer(float distance)
+	private UnityEngine.AI.NavMeshAgent navmesh;
+	public ChasePlayer(UnityEngine.AI.NavMeshAgent navmesh, float distance)
 	{
+		this.navmesh = navmesh;
 		this.distance = distance;
 	}
 	public override int Act (BehaviorTree tree)
 	{
 		if((player.transform.position - tree.transform.position).magnitude < distance)
 			return 1;
-		if(!tree.navmesh.pathPending)
+		if(!navmesh.pathPending)
 		{
 			counter = counter - Time.deltaTime;
 			if(counter <= 0)
@@ -23,13 +25,13 @@ public class ChasePlayer : BehaviorTreeNode {
 				UnityEngine.AI.NavMeshHit hit;
 				if(UnityEngine.AI.NavMesh.Raycast(player.transform.position, goal, out hit, 0))
 					goal = hit.position;
-				tree.navmesh.SetDestination(goal);
+				navmesh.SetDestination(goal);
 			}
 		}
 		return -1;
 	}
 	private float predictTime(BehaviorTree tree)
 	{
-		return ((player.transform.position - tree.transform.position).magnitude) / (tree.navmesh.speed);
+		return ((player.transform.position - tree.transform.position).magnitude) / (navmesh.speed);
 	}
 }
