@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VelocityReporter : MonoBehaviour {
 private Vector3 prevPos;
-public Vector3 velocity {get; private set;}
+	public Vector3 velocity;
 
 	// Use this for initialization
 	void Start () {
@@ -13,7 +13,7 @@ public Vector3 velocity {get; private set;}
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		velocity = (this.transform.position - prevPos) / Time.deltaTime;
 		prevPos = this.transform.position;
 	}

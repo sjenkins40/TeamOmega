@@ -457,6 +457,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b68f36f91438442faa9dc4aa44f3c59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &489774354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -477,6 +478,7 @@ MonoBehaviour:
   m_MoveSpeedMultiplier: 40
   m_AnimSpeedMultiplier: 1.2
   m_GroundCheckDistance: 0.3
+  m_Animator: {fileID: 489774358}
 --- !u!114 &489774355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -490,6 +492,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countText: {fileID: 779346076}
+  dashpunch: 0
+  dashpunchState: 0
+  dashTime: 0
+  facingDirection: 0
+  directionVector: {x: 0, y: 0, z: 0}
+  mag: 0
 --- !u!136 &489774356
 CapsuleCollider:
   m_ObjectHideFlags: 0

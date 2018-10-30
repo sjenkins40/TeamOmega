@@ -17,7 +17,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
 
 		Rigidbody m_Rigidbody;
-		Animator m_Animator;
+		public Animator m_Animator;
 		bool m_IsGrounded;
 		float m_OrigGroundCheckDistance;
 		const float k_Half = 0.5f;
@@ -28,6 +28,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		Vector3 m_CapsuleCenter;
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
+		bool dashpunch;
 
 
 		void Start()
@@ -55,17 +56,15 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			move = Vector3.ProjectOnPlane(move, m_GroundNormal);
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
+			dashpunch = m_Animator.GetBool("DashPunch");
 
 			ApplyExtraTurnRotation();
 
 			// control and velocity handling is different when grounded and airborne:
-			if (m_IsGrounded)
-			{
-				HandleGroundedMovement(crouch, jump);
-			}
-			else
-			{
-				HandleAirborneMovement();
+			if (m_IsGrounded && dashpunch == false) {
+				HandleGroundedMovement (crouch, jump);
+			} else if (dashpunch == false) {
+				HandleAirborneMovement ();
 			}
 
 			ScaleCapsuleForCrouching(crouch);
@@ -188,12 +187,15 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		{
 			// we implement this function to override the default root motion.
 			// this allows us to modify the positional speed before it's applied.
-			if (m_IsGrounded && Time.deltaTime > 0)
-			{
+			if (m_IsGrounded && Time.deltaTime > 0 && dashpunch == false) {
 				Vector3 v = (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
+				m_Rigidbody.velocity = v;
+			} else if (dashpunch == true) {
+				Vector3 v = (transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / 170) / Time.deltaTime;
+				v.y = 0;
 				m_Rigidbody.velocity = v;
 			}
 		} 

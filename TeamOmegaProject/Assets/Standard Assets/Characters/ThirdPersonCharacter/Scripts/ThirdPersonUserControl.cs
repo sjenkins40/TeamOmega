@@ -15,10 +15,15 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
         private int health;
         public Text countText;
+		public bool dashpunch;
+		public bool dashpunchState;
+		public int dashTime;
+		public bool dashpunchAvailable = true;
+		private bool grounded;
 
-        
         private void Start()
         {
+
             // get the transform of the main camera
             if (Camera.main != null)
             {
@@ -44,12 +49,19 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             {
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
             }
+
+			if (!dashpunch)
+			{
+				dashpunch = CrossPlatformInputManager.GetButtonDown ("DashPunch");
+			}
+
         }
 
 
         // Fixed update is called in sync with physics
         private void FixedUpdate()
         {
+
             // read inputs
             float h = CrossPlatformInputManager.GetAxisRaw("Horizontal");
             float v = CrossPlatformInputManager.GetAxisRaw("Vertical");
@@ -67,14 +79,40 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 // we use world-relative directions in the case of no main camera
                 m_Move = v*Vector3.forward + h*Vector3.right;
             }
+
+			m_Character.m_Animator.SetBool ("DashAvailable", dashpunchAvailable);
+
+			if (dashpunchState == false && dashpunch == true && dashpunchAvailable == true) {
+				m_Character.m_Animator.SetBool ("DashPunch", true);
+				m_Character.m_Animator.SetBool ("DashAvailable", false);
+				dashpunchState = true;
+				dashTime = 0;
+				dashpunchAvailable = false;
+			} else if (dashpunchState == true && dashTime < 18) {
+				dashTime += 1;
+			} else if (dashpunchState == true && dashTime >= 18) {
+				m_Character.m_Animator.SetBool ("DashPunch", false);
+				dashpunchState = false;
+				dashTime = 0;
+			}
+
+			m_Character.m_Animator.SetInteger ("DashTime", dashTime);
+			countText.text = dashTime.ToString();
+
+			grounded = m_Character.m_Animator.GetBool("OnGround");
+			if (dashpunchState == false && dashpunchAvailable == false && grounded == true) {
+				dashpunchAvailable = true;
+			}
+
 #if !MOBILE_INPUT
 			// walk speed multiplier
-	        if (Input.GetKey(KeyCode.LeftShift)) m_Move *= 0.5f;
+	        if (Input.GetKey(KeyCode.RightShift)) m_Move *= 0.5f;
 #endif
 
             // pass all parameters to the character control script
-            m_Character.Move(m_Move, crouch, m_Jump);
+			m_Character.Move(m_Move, crouch, m_Jump);
             m_Jump = false;
+			dashpunch = false;
         }
         private void OnTriggerEnter(Collider other)
         {
