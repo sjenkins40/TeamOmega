@@ -20,6 +20,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		public int dashTime;
 		public bool dashpunchAvailable = true;
 		private bool grounded;
+		private bool doublejump;
+		int jumpstatus;
 
         private void Start()
         {
@@ -61,11 +63,20 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         // Fixed update is called in sync with physics
         private void FixedUpdate()
         {
+			float h;
+			float v;
+			bool crouch;
 
             // read inputs
-            float h = CrossPlatformInputManager.GetAxisRaw("Horizontal");
-            float v = CrossPlatformInputManager.GetAxisRaw("Vertical");
-            bool crouch = Input.GetKey(KeyCode.C);
+			if (dashpunchState == false) {
+				h = CrossPlatformInputManager.GetAxisRaw ("Horizontal");
+				v = CrossPlatformInputManager.GetAxisRaw ("Vertical");
+				crouch = Input.GetKey (KeyCode.C);
+			} else {
+				h = 0;
+				v = 0;
+				crouch = false;
+			}
 
             // calculate move direction to pass to character
             if (m_Cam != null)
@@ -81,6 +92,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             }
 
 			m_Character.m_Animator.SetBool ("DashAvailable", dashpunchAvailable);
+			doublejump = m_Character.m_Animator.GetBool ("DoubleJump");
 
 			if (dashpunchState == false && dashpunch == true && dashpunchAvailable == true) {
 				m_Character.m_Animator.SetBool ("DashPunch", true);
@@ -88,16 +100,21 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				dashpunchState = true;
 				dashTime = 0;
 				dashpunchAvailable = false;
-			} else if (dashpunchState == true && dashTime < 18) {
+				if (doublejump == true) {
+					jumpstatus = 1;
+				} else {
+					jumpstatus = 0;
+				}
+			} else if (dashpunchState == true && dashTime < 18 && (jumpstatus == 1 || (jumpstatus == 0 && doublejump == false))) {
 				dashTime += 1;
-			} else if (dashpunchState == true && dashTime >= 18) {
+			} else if (dashpunchState == true && (dashTime >= 18 || (jumpstatus == 0 && doublejump == true))) {
 				m_Character.m_Animator.SetBool ("DashPunch", false);
 				dashpunchState = false;
 				dashTime = 0;
 			}
 
 			m_Character.m_Animator.SetInteger ("DashTime", dashTime);
-			countText.text = dashTime.ToString();
+			//countText.text = dashTime.ToString();
 
 			grounded = m_Character.m_Animator.GetBool("OnGround");
 			if (dashpunchState == false && dashpunchAvailable == false && grounded == true) {

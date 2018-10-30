@@ -63,8 +63,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			// control and velocity handling is different when grounded and airborne:
 			if (m_IsGrounded && dashpunch == false) {
 				HandleGroundedMovement (crouch, jump);
-			} else if (dashpunch == false) {
-				HandleAirborneMovement ();
+			} else {
+				HandleAirborneMovement (jump);
 			}
 
 			ScaleCapsuleForCrouching(crouch);
@@ -152,24 +152,44 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-		void HandleAirborneMovement()
+		void HandleAirborneMovement(bool jump)
 		{
-			// apply extra gravity from multiplier:
-			Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier) - Physics.gravity;
-			m_Rigidbody.AddForce(extraGravityForce);
+			if (jump && m_Animator.GetBool("DoubleJump") == false)
+			{
+				// jump!
+				float doubleJumpPower = m_JumpPower;
+				m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, doubleJumpPower, m_Rigidbody.velocity.z);
+				if (m_IsGrounded == true) {
+					m_IsGrounded = false;
+				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
+					m_Animator.SetBool ("DoubleJump", true);
+				}
+				m_Animator.applyRootMotion = false;
+				m_GroundCheckDistance = 0.1f;
+			}
 
-			m_GroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_OrigGroundCheckDistance : 0.01f;
+			if (dashpunch == false) {
+				// apply extra gravity from multiplier:
+				Vector3 extraGravityForce = (Physics.gravity * m_GravityMultiplier) - Physics.gravity;
+				m_Rigidbody.AddForce (extraGravityForce);
+
+				m_GroundCheckDistance = m_Rigidbody.velocity.y < 0 ? m_OrigGroundCheckDistance : 0.01f;
+			}
 		}
 
 
 		void HandleGroundedMovement(bool crouch, bool jump)
 		{
 			// check whether conditions are right to allow a jump:
-			if (jump && !crouch && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
+			if (jump && !crouch && (m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded") || m_Animator.GetBool("DoubleJump") == false))
 			{
 				// jump!
 				m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
-				m_IsGrounded = false;
+				if (m_IsGrounded == true) {
+					m_IsGrounded = false;
+				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
+					m_Animator.SetBool ("DoubleJump", true);
+				}
 				m_Animator.applyRootMotion = false;
 				m_GroundCheckDistance = 0.1f;
 			}
@@ -185,6 +205,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		public void OnAnimatorMove()
 		{
+			
 			// we implement this function to override the default root motion.
 			// this allows us to modify the positional speed before it's applied.
 			if (m_IsGrounded && Time.deltaTime > 0 && dashpunch == false) {
@@ -194,10 +215,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				v.y = m_Rigidbody.velocity.y;
 				m_Rigidbody.velocity = v;
 			} else if (dashpunch == true) {
-				Vector3 v = (transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / 170) / Time.deltaTime;
+				Vector3 v = (transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / 190) / Time.deltaTime;
 				v.y = 0;
 				m_Rigidbody.velocity = v;
 			}
+
 		} 
 
 
@@ -214,6 +236,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			{
 				m_GroundNormal = hitInfo.normal;
 				m_IsGrounded = true;
+				m_Animator.SetBool("DoubleJump", false);
 				m_Animator.applyRootMotion = true;
 			}
 			else
