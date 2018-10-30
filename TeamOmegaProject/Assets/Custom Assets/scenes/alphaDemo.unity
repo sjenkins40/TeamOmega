@@ -802,7 +802,15 @@ Prefab:
     - target: {fileID: 114915833359607648, guid: c914764de23b5be43803e455eb2a8ff4,
         type: 2}
       propertyPath: m_TiltMax
-      value: 180
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863012377470046, guid: c914764de23b5be43803e455eb2a8ff4, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.103
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863012377470046, guid: c914764de23b5be43803e455eb2a8ff4, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c914764de23b5be43803e455eb2a8ff4, type: 2}
