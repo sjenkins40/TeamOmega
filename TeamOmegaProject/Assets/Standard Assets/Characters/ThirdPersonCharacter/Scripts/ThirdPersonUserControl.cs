@@ -132,6 +132,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             m_Jump = false;
 			dashpunch = false;
         }
+
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Enemy"))

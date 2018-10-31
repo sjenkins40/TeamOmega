@@ -15,6 +15,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
 		[SerializeField] float m_GroundCheckDistance = 0.1f;
+        [SerializeField] float m_AirControlFactor = 10f;
 
 		Rigidbody m_Rigidbody;
 		public Animator m_Animator;
@@ -147,7 +148,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			else
 			{
 				// don't use that while airborne
-				m_Animator.speed = 1;
+                m_Animator.speed = 1;
 			}
 		}
 
@@ -157,8 +158,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (jump && m_Animator.GetBool("DoubleJump") == false)
 			{
 				// jump!
+                float airDirX = Input.GetAxis("Horizontal") * m_MoveSpeedMultiplier / 4;
+                float airDirZ = Input.GetAxis("Vertical") * m_MoveSpeedMultiplier / 4;
+
 				float doubleJumpPower = m_JumpPower;
-				m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, doubleJumpPower, m_Rigidbody.velocity.z);
+                m_Rigidbody.velocity += new Vector3(m_Rigidbody.velocity.x, doubleJumpPower, m_Rigidbody.velocity.z);
 				if (m_IsGrounded == true) {
 					m_IsGrounded = false;
 				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
@@ -184,7 +188,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (jump && !crouch && (m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded") || m_Animator.GetBool("DoubleJump") == false))
 			{
 				// jump!
-				m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
+                float airDirX = Input.GetAxis("Horizontal") * m_MoveSpeedMultiplier / 4;
+                float airDirZ = Input.GetAxis("Vertical") * m_MoveSpeedMultiplier / 4;
+                m_Rigidbody.velocity += new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
 				if (m_IsGrounded == true) {
 					m_IsGrounded = false;
 				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
@@ -218,7 +224,16 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				Vector3 v = (transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / 190) / Time.deltaTime;
 				v.y = 0;
 				m_Rigidbody.velocity = v;
-			}
+            } else {
+                // Allow air movement control 
+                Vector3 v = (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
+
+                // Adjust m_AirControlFactor for tweaking in-air movement
+                v = transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / m_AirControlFactor;
+
+                v.y = m_Rigidbody.velocity.y;
+                m_Rigidbody.velocity = v;
+            }
 
 		} 
 
