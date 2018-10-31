@@ -30,6 +30,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
 		bool dashpunch;
+		bool jumpcancel;
 
 
 		void Start()
@@ -162,7 +163,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 float airDirZ = Input.GetAxis("Vertical") * m_MoveSpeedMultiplier / 4;
 
 				float doubleJumpPower = m_JumpPower;
-                m_Rigidbody.velocity += new Vector3(m_Rigidbody.velocity.x, doubleJumpPower, m_Rigidbody.velocity.z);
+                m_Rigidbody.velocity += new Vector3(m_Rigidbody.velocity.x, 0, m_Rigidbody.velocity.z);
+                m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, doubleJumpPower, m_Rigidbody.velocity.z);
+
+                if (dashpunch == true) {
+                	jumpcancel = true;
+                }
+
 				if (m_IsGrounded == true) {
 					m_IsGrounded = false;
 				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
@@ -191,6 +198,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 float airDirX = Input.GetAxis("Horizontal") * m_MoveSpeedMultiplier / 4;
                 float airDirZ = Input.GetAxis("Vertical") * m_MoveSpeedMultiplier / 4;
                 m_Rigidbody.velocity += new Vector3(m_Rigidbody.velocity.x, m_JumpPower, m_Rigidbody.velocity.z);
+
+                if (dashpunch) {
+                	jumpcancel = true;
+                }
+
 				if (m_IsGrounded == true) {
 					m_IsGrounded = false;
 				} else if (m_IsGrounded == false && m_Animator.GetBool ("DoubleJump") == false) {
@@ -214,13 +226,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			
 			// we implement this function to override the default root motion.
 			// this allows us to modify the positional speed before it's applied.
-			if (m_IsGrounded && Time.deltaTime > 0 && dashpunch == false) {
+			if (m_IsGrounded && Time.deltaTime > 0 && dashpunch == false && jumpcancel == false) {
 				Vector3 v = (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
 
 				// we preserve the existing y part of the current velocity.
 				v.y = m_Rigidbody.velocity.y;
 				m_Rigidbody.velocity = v;
-			} else if (dashpunch == true) {
+			} else if (dashpunch == true && jumpcancel == false) {
 				Vector3 v = (transform.localRotation * Vector3.forward * m_MoveSpeedMultiplier / 190) / Time.deltaTime;
 				v.y = 0;
 				m_Rigidbody.velocity = v;
@@ -233,6 +245,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
                 v.y = m_Rigidbody.velocity.y;
                 m_Rigidbody.velocity = v;
+                if (dashpunch == false) {
+                	jumpcancel = false;
+            	}
             }
 
 		} 
