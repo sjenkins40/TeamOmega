@@ -8,6 +8,7 @@ TagManager:
   - Hazard
   - Bounce
   - Eye
+  - GM
   layers:
   - Default
   - TransparentFX
