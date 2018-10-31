@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class StationaryEnemyTree : BehaviorTree {
 	// Use this for initialization
-	public GameObject projectile;
+	public Rigidbody projectile;
+	public float speed;
 	void Start () {
 		root = new Sequence(
 							new ChangeColour(new UnityEngine.Color(0.1f, 0.4f, 0.1f)),
@@ -14,7 +15,7 @@ public class StationaryEnemyTree : BehaviorTree {
 							new LoopUntilFailure(
 									new Alternator(
 											new IfNotSuccess(new WaitForPlayer(15)),
-											new Attack(projectile, 5)
+											new Attack(projectile, 0.5f, speed)
 									)
 							)
 						);

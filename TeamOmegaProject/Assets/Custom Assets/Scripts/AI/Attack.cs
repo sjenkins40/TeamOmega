@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Attack : BehaviorTreeNode {
-	private UnityEngine.GameObject projectile;
+	private Rigidbody projectile;
 	private float firerate;
 	private float countdown = -1;
-	public Attack(UnityEngine.GameObject projectile, float firerate)
+	private float speed;
+	public Attack(Rigidbody projectile, float firerate, float speed)
 	{
 		this.projectile = projectile;
 		this.firerate = firerate;
+		this.speed = speed;
 	}
 	public override int Act (BehaviorTree tree)
 	{
@@ -20,7 +22,11 @@ public class Attack : BehaviorTreeNode {
 			if(countdown < 0)
 			{
 				countdown = firerate;
-				GameObject t = UnityEngine.Object.Instantiate(projectile, tree.transform.position, tree.transform.rotation);
+				Vector3 direction = player.transform.position - tree.transform.position;
+				direction = direction.normalized;
+				Rigidbody t = UnityEngine.Object.Instantiate(projectile, tree.transform.position + direction, tree.transform.rotation);
+				t.velocity = direction* speed;
+				t.useGravity = false;
 			}
 		}
 		return -1;
