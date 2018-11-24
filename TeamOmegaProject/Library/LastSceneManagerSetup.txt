@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Custom Assets/scenes/alphaDemo.unity
+- path: Assets/Custom Assets/scenes/alphaDemo_BASE_13988.unity
   isLoaded: 1
   isActive: 1
